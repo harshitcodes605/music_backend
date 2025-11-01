@@ -15,6 +15,5 @@ router.get("/protected", verifyToken, (req, res) => {
   });
 });
 
-router.post("/resend-otp", resendOtp);
 
 export default router;
