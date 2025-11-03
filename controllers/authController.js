@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import sendGrid from "@sendgrid/mail";
+sendGrid.setApiKey(process.env.SENDGRID_API);
 console.log("Email check:", process.env.EMAIL_USER, process.env.EMAIL_PASS ? "Loaded" : "Missing");
 
 const transporter = nodemailer.createTransport({
@@ -41,17 +42,19 @@ export const signup = async (req, res) => {
     const otp = Math.floor(100000 + Math.random() * 900000); 
     otpStore.set(email, { otp, username, password }); 
 
-    msg ={
+    const msg ={
       to:email,
-      from:EMAIL_USER,
+      from:process.env.EMAIL_USER,
+      subject:"hello",
       text:"hello",
-      html:"<h1>hello</h1>"
+      html:"<h1>hello</h1>",
     }
 
     try{
-      await sendGrid.send(smg);
+      await sendGrid.send(msg);
+      console.log('email is send')
     }catch(error){
-      console.log("email not send")
+      console.log("email not send", error)
     }
 
     res.status(200).json({
