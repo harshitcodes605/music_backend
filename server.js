@@ -11,12 +11,14 @@ dotenv.config();
 connectDB();
 
 const app = express();
-app.use(cors(
-    {
-        origin:"https://music-system-pgz2.vercel.app/",
-        credentials:true
-    }
-));
+
+app.use(
+  cors({
+    origin: ["https://music-system-pgz2.vercel.app", "http://localhost:3000"],
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
@@ -27,4 +29,3 @@ app.get("/", (req, res) => res.send("Music Backend is running 🎵"));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
