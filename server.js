@@ -13,7 +13,7 @@ connectDB();
 const app = express();
 app.use(cors(
     {
-        origin:"*",
+        origin:"https://music-system-pgz2.vercel.app/",
         credentials:true
     }
 ));
