@@ -6,8 +6,8 @@ const songSchema = new mongoose.Schema(
     artist: { type: String, required: true },
     album: { type: String },
     genre: { type: String },
-    imageUrl: { type: String }, // cover image URL
-    audioUrl: { type: String }, // song file URL (not for playback, just metadata)
+    imageUrl: { type: String }, 
+    audioUrl: { type: String }, 
     isTrending: { type: Boolean, default: false },
   },
   { timestamps: true }
