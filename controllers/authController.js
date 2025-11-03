@@ -44,8 +44,8 @@ const hashedPassword = await bcrypt.hash(password, 10);
 
 await OtpVerification.findOneAndUpdate(
   { email },
-  { otp, username, password: hashedPassword, createdAt: new Date() },
-  { upsert: true, new: true }
+  { $set: { otp, username, password: hashedPassword, createdAt: new Date() } },
+  { upsert: true, new: true, setDefaultsOnInsert: true }
 );
 
     const msg ={
