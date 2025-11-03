@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import sendGrid from "@sendgrid/mail";
+import OtpVerification from "../models/OtpVerification.js";
 sendGrid.setApiKey(process.env.SENDGRID_API);
 console.log("Email check:", process.env.EMAIL_USER, process.env.EMAIL_PASS ? "Loaded" : "Missing");
 
@@ -15,8 +16,6 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS, 
   },
 });
-
-const otpStore = new Map();
 
 export const signup = async (req, res) => {
   try {
@@ -39,8 +38,15 @@ export const signup = async (req, res) => {
     if (existingUser)
       return res.status(400).json({ message: "Email already registered" });
 
-    const otp = Math.floor(100000 + Math.random() * 900000); 
-    otpStore.set(email, { otp, username, password }); 
+    const otp = Math.floor(100000 + Math.random() * 900000);
+
+const hashedPassword = await bcrypt.hash(password, 10);
+
+await OtpVerification.findOneAndUpdate(
+  { email },
+  { otp, username, password: hashedPassword, createdAt: new Date() },
+  { upsert: true, new: true }
+);
 
     const msg ={
       to:email,
@@ -48,7 +54,7 @@ export const signup = async (req, res) => {
       subject:"Complete Your Signup - OTP Verification",
       text:`Welcome ${username}, enter this OTP to complete your signup: ${otp}`,
       html: `
-    <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+     <div style="font-family: Arial, sans-serif; line-height: 1.5;">
       <h2>Welcome, ${username}!</h2>
       <p>Thank you for signing up for our Music Recommendation platform 🎵</p>
       <p>Please use the OTP below to complete your signup:</p>
@@ -78,20 +84,20 @@ export const signup = async (req, res) => {
 export const verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
-    const record = otpStore.get(email);
+    const record = await OtpVerification.findOne({ email });
 
-    if (!record || record.otp !== Number(otp))
+    if (!record || record.otp !== Number(otp)) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
 
-    const { username, password } = record;
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const newUser = new User({ username, email, password: hashedPassword });
+    const newUser = new User({
+      username: record.username,
+      email,
+      password: record.password,
+    });
     await newUser.save();
 
-    otpStore.delete(email);
+    await OtpVerification.deleteOne({ email });
 
     res.status(201).json({
       message: "Email verified and user registered successfully!",
