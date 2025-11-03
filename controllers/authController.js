@@ -4,6 +4,7 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
+import sendGrid from "@sendgrid/mail";
 console.log("Email check:", process.env.EMAIL_USER, process.env.EMAIL_PASS ? "Loaded" : "Missing");
 
 const transporter = nodemailer.createTransport({
@@ -40,17 +41,18 @@ export const signup = async (req, res) => {
     const otp = Math.floor(100000 + Math.random() * 900000); 
     otpStore.set(email, { otp, username, password }); 
 
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "Verify your email - Music Recommendation App",
-      html: `<h3>Hello ${username} 👋</h3>
-             <p>Your OTP for verification is:</p>
-             <h2>${otp}</h2>
-             <p>This OTP is valid for 5 minutes.</p>`,
-    };
+    msg ={
+      to:email,
+      from:EMAIL_USER,
+      text:"hello",
+      html:"<h1>hello</h1>"
+    }
 
-    await transporter.sendMail(mailOptions);
+    try{
+      await sendGrid.send(smg);
+    }catch(error){
+      console.log("email not send")
+    }
 
     res.status(200).json({
       message: "OTP sent successfully. Please verify to complete signup.",
