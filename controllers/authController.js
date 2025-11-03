@@ -45,10 +45,19 @@ export const signup = async (req, res) => {
     const msg ={
       to:email,
       from:process.env.EMAIL_USER,
-      subject:"hello",
-      text:"hello",
-      html:"<h1>hello</h1>",
-    }
+      subject:"Complete Your Signup - OTP Verification",
+      text:`Welcome ${username}, enter this OTP to complete your signup: ${otp}`,
+      html: `
+    <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+      <h2>Welcome, ${username}!</h2>
+      <p>Thank you for signing up for our Music Recommendation platform 🎵</p>
+      <p>Please use the OTP below to complete your signup:</p>
+      <h1 style="color: #2F8FED; letter-spacing: 2px;">${otp}</h1>
+      <p>This OTP will expire in a few minutes.</p>
+      <p>Regards,<br><strong>The Audient Team</strong></p>
+    </div>
+  `,
+};
 
     try{
       await sendGrid.send(msg);
