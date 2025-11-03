@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 
-const ML_API_BASE = "https://music-recommendation-system-71od.onrender.com"; 
+const ML_API_BASE = process.env.ML_API_BASE;
+console.log("ML API Base URL:", ML_API_BASE || "Not Found in ENV");
 
 export const getPopularSongs = async (req, res) => {
   try {
