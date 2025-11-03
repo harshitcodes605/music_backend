@@ -1,6 +1,6 @@
 import express from "express";
 import { addLikedSong, getLikedSongs, removeLikedSong } from "../controllers/likedController.js";
-import verifyToken from "../middleware/verifyToken.js";
+import { verifyToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
