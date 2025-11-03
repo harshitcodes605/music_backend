@@ -86,8 +86,18 @@ export const verifyOtp = async (req, res) => {
     const { email, otp } = req.body;
     const record = await OtpVerification.findOne({ email });
 
-    if (!record || record.otp !== Number(otp)) {
-      return res.status(400).json({ message: "Invalid or expired OTP" });
+    if (!record) {
+      return res.status(400).json({ message: "No OTP found for this email" });
+    }
+
+    const otpAge = (Date.now() - record.createdAt.getTime()) / 60000; 
+    if (otpAge > 5) {
+      await OtpVerification.deleteOne({ email });
+      return res.status(400).json({ message: "OTP expired. Please request again." });
+    }
+
+    if (String(record.otp) !== String(otp)) {
+      return res.status(400).json({ message: "Invalid OTP" });
     }
 
     const newUser = new User({
@@ -112,6 +122,7 @@ export const verifyOtp = async (req, res) => {
     res.status(500).json({ message: "Server error during OTP verification" });
   }
 };
+
 
 export const login = async (req, res) => {
   try {
