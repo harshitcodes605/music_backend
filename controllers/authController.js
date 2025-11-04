@@ -109,14 +109,22 @@ export const verifyOtp = async (req, res) => {
 
     await OtpVerification.deleteOne({ email });
 
-    res.status(201).json({
-      message: "Email verified and user registered successfully!",
-      user: {
-        id: newUser._id,
-        username: newUser.username,
-        email: newUser.email,
-      },
-    });
+const token = jwt.sign(
+  { id: newUser._id, username: newUser.username, email: newUser.email },
+  process.env.JWT_SECRET,
+  { expiresIn: "7d" }
+);
+
+res.status(201).json({
+  message: "Email verified and user registered successfully!",
+  token, 
+  user: {
+    id: newUser._id,
+    username: newUser.username,
+    email: newUser.email,
+  },
+});
+
   } catch (error) {
     console.error("OTP Verification Error:", error);
     res.status(500).json({ message: "Server error during OTP verification" });
