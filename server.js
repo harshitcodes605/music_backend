@@ -8,6 +8,7 @@ import likedRoutes from "./routes/likedRoutes.js";
 import recentRoutes from "./routes/recentRoutes.js";
 
 dotenv.config();
+console.log("JWT SECRET CHECK:", process.env.JWT_SECRET ? "Loaded ✅" : "Missing ❌");
 connectDB();
 
 const app = express();
